@@ -1,23 +1,23 @@
 [versions]
+activity = "1.8.2"
 agp = "8.3.2"
-hiltVersion = "2.51.1"
-kotlin = "1.9.22"
+appcompat = "1.6.1"
+constraintlayout = "2.1.4"
 coreKtx = "1.12.0"
+coroutinesVersion = "1.8.0"
+easypermissions = "3.0.0"
+espressoCore = "3.5.1"
+glideVersion = "4.16.0"
+hiltVersion = "2.51.1"
 junit = "4.13.2"
 junitVersion = "1.1.5"
-espressoCore = "3.5.1"
-appcompat = "1.6.1"
+kotlin = "1.9.22"
 lifecycleVersion = "2.7.0"
-roomVersion = "2.6.1"
-navigationVersion = "2.7.7"
-coroutinesVersion = "1.8.0"
-glideVersion = "4.16.0"
-easypermissions = "3.0.0"
-comJakewhartonTimberTimber5 = "5.0.1"
 material = "1.11.0"
-activity = "1.8.2"
-constraintlayout = "2.1.4"
+navigationVersion = "2.7.7"
 playServicesMaps = "18.2.0"
+roomVersion = "2.6.1"
+timberVersion = "5.0.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -49,7 +49,7 @@ github-glide-compiler = { module = "com.github.bumptech.glide:ksp", version.ref 
 
 easypermissions = { module = "pub.devrel:easypermissions", version.ref = "easypermissions" }
 
-com-jakewharton-timber-timber5 = { module = "com.jakewharton.timber:timber", version.ref = "comJakewhartonTimberTimber5" }
+com-jakewharton-timber-timber5 = { module = "com.jakewharton.timber:timber", version.ref = "timberVersion" }
 
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 

@@ -1,8 +1,11 @@
 package com.zhangzhao.sportsapp.view
 
+import android.Manifest
 import android.os.Bundle
 import android.view.View
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
@@ -21,12 +24,26 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
+    private lateinit var permissionLauncher: ActivityResultLauncher<Array<String>>
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+//        permissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+//            //处理用户权限授予结果
+//        }
+//
+//        val permissionsToRequest = arrayOf(
+//            Manifest.permission.ACCESS_FINE_LOCATION,
+//            Manifest.permission.ACCESS_COARSE_LOCATION,
+//            Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+//            Manifest.permission.CALL_PHONE
+//        )
+//        permissionLauncher.launch(permissionsToRequest)
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -50,6 +67,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
     }
+
 }
 
 
