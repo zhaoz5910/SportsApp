@@ -4,12 +4,10 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.NotificationManager.IMPORTANCE_LOW
 import android.app.PendingIntent
-import android.app.PendingIntent.FLAG_MUTABLE
+import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.content.Context
 import android.content.Intent
-import android.os.Build
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
 import com.zhangzhao.sportsapp.R
@@ -31,7 +29,7 @@ class TrackingService: LifecycleService() {
         intent?.let {
             when (it.action) {
                 ACTION_START_OR_RESUME_SERVICE -> {
-                    Timber.d("Started or resumed service")
+                    Timber.tag("MyTag").d("Started or resumed service")
                     if(isFirstRun) {
                         startForegroundService()
                         isFirstRun = false
@@ -51,7 +49,7 @@ class TrackingService: LifecycleService() {
     }
 
     private fun startForegroundService() {
-        Timber.d("TrackingService started.")
+        Timber.tag("MyTag").d("TrackingService started.")
 
         val notificationManager =
             getSystemService(Context.NOTIFICATION_SERVICE)
@@ -76,7 +74,7 @@ class TrackingService: LifecycleService() {
         Intent(this, MainActivity::class.java).also {
             it.action = ACTION_SHOW_TRACKING_FRAGMENT
         },
-        FLAG_UPDATE_CURRENT or FLAG_MUTABLE
+        FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
     )
 
     private fun createNotificationChannel(notificationManager: NotificationManager) {
