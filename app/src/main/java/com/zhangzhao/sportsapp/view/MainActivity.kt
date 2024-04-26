@@ -1,6 +1,7 @@
 package com.zhangzhao.sportsapp.view
 
 import android.Manifest
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.activity.enableEdgeToEdge
@@ -16,6 +17,7 @@ import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.zhangzhao.sportsapp.R
 import com.zhangzhao.sportsapp.databinding.ActivityMainBinding
+import com.zhangzhao.sportsapp.model.Constants.ACTION_SHOW_TRACKING_FRAGMENT
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.HiltAndroidApp
 
@@ -24,8 +26,6 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
-    private lateinit var permissionLauncher: ActivityResultLauncher<Array<String>>
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -33,17 +33,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-//        permissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
-//            //处理用户权限授予结果
-//        }
-//
-//        val permissionsToRequest = arrayOf(
-//            Manifest.permission.ACCESS_FINE_LOCATION,
-//            Manifest.permission.ACCESS_COARSE_LOCATION,
-//            Manifest.permission.ACCESS_BACKGROUND_LOCATION,
-//            Manifest.permission.CALL_PHONE
-//        )
-//        permissionLauncher.launch(permissionsToRequest)
+        navigateToTrackingFragmentIfNeeded(intent)
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -66,6 +56,19 @@ class MainActivity : AppCompatActivity() {
                     else -> binding.bottomNavigationView.visibility = View.VISIBLE
                 }
             }
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        navigateToTrackingFragmentIfNeeded(intent)
+    }
+
+    private fun navigateToTrackingFragmentIfNeeded(intent: Intent?) {
+        if (intent?.action == ACTION_SHOW_TRACKING_FRAGMENT) {
+            binding.navHostFragment.findNavController().navigate(
+                R.id.action_global_trackingFragment
+            )
+        }
     }
 
 }

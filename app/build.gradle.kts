@@ -51,6 +51,8 @@ dependencies {
     //高德地图
     implementation(fileTree("libs/AMap2DMap_6.0.0_AMapSearch_9.7.1_AMapLocation_6.4.3_20240314.aar"))
 
+
+    implementation(libs.androidx.lifecycle.service)
     // ViewModel相关依赖
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
