@@ -19,7 +19,7 @@ object Constants {
     // Map Options
     const val POLYLINE_COLOR = Color.RED
     const val POLYLINE_WIDTH = 8f
-    const val MAP_ZOOM = 15f
+    const val MAP_ZOOM = 20f
 
     // Timer
     const val TIMER_UPDATE_INTERVAL = 50L
@@ -46,4 +46,18 @@ object Constants {
     const val ACTION_START_OR_RESUME_SERVICE = "ACTION_START_SERVICE"
     const val ACTION_PAUSE_SERVICE = "ACTION_PAUSE_SERVICE"
     const val ACTION_STOP_SERVICE = "ACTION_STOP_SERVICE"
+
+    // Permissions
+    val permissionsLocation = arrayOf(
+        android.Manifest.permission.ACCESS_COARSE_LOCATION,
+        android.Manifest.permission.ACCESS_FINE_LOCATION,
+        android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
+    )
+    val permissionsForegroundLocation = arrayOf(
+        android.Manifest.permission.ACCESS_COARSE_LOCATION,
+        android.Manifest.permission.ACCESS_FINE_LOCATION
+    )
+    val permissionsBackgroundLocation = arrayOf(
+        android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
+    )
 }

@@ -49,7 +49,8 @@ dependencies {
     kapt(libs.hilt.android.compiler)
 
     //高德地图
-    implementation(fileTree("libs/AMap2DMap_6.0.0_AMapSearch_9.7.1_AMapLocation_6.4.3_20240314.aar"))
+    implementation(fileTree("libs/AMap3DMap_10.0.600_AMapSearch_9.7.1_AMapLocation_6.4.3_20240314.aar"))
+    //implementation(fileTree("libs/AMap2DMap_6.0.0_AMapSearch_9.7.1_AMapLocation_6.4.3_20240314.aar"))
 
 
     implementation(libs.androidx.lifecycle.service)

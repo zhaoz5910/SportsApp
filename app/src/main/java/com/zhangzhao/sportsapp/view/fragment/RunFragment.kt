@@ -33,11 +33,10 @@ class RunFragment: Fragment(R.layout.fragment_run) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // 开始跑步，导航至trackingFragment
         binding.fab.setOnClickListener {
             findNavController().navigate(R.id.action_runFragment_to_trackingFragment)
         }
-
-
     }
 
     override fun onDestroyView() {

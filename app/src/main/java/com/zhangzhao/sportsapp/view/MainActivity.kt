@@ -46,8 +46,8 @@ class MainActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.toolbar)
 
+        // 绑定底部导航栏
         binding.bottomNavigationView.setupWithNavController(navHost.navController)
-
         navHost.navController
             .addOnDestinationChangedListener { _, destination, _ ->
                 when (destination.id) {
@@ -65,6 +65,7 @@ class MainActivity : AppCompatActivity() {
         navigateToTrackingFragmentIfNeeded(intent)
     }
 
+    // 从通知栏导航到TrackingFragment
     private fun navigateToTrackingFragmentIfNeeded(intent: Intent?) {
         if (intent?.action == ACTION_SHOW_TRACKING_FRAGMENT) {
             Timber.tag("MyTag").d("navigate to trackingFragment")
