@@ -41,6 +41,9 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
+        Timber.tag("MyTag").d("onCreate被调用")
+        navigateToTrackingFragmentIfNeeded(intent)
+
         navHost = supportFragmentManager.findFragmentById(R.id.navHostFragment)
                 as NavHostFragment
 
@@ -56,19 +59,18 @@ class MainActivity : AppCompatActivity() {
                     else -> binding.bottomNavigationView.visibility = View.VISIBLE
                 }
             }
-
-        navigateToTrackingFragmentIfNeeded(intent)
     }
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
+        Timber.tag("MyTag").d("onNewIntent被调用")
         navigateToTrackingFragmentIfNeeded(intent)
     }
 
     // 从通知栏导航到TrackingFragment
     private fun navigateToTrackingFragmentIfNeeded(intent: Intent?) {
         if (intent?.action == ACTION_SHOW_TRACKING_FRAGMENT) {
-            Timber.tag("MyTag").d("navigate to trackingFragment")
+            Timber.tag("MyTag").d("导航到 trackingFragment")
             navHost.navController.navigate(
                 R.id.action_global_trackingFragment
             )

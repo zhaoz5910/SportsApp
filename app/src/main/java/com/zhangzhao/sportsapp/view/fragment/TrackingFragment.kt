@@ -7,14 +7,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.amap.api.location.AMapLocationClient
 import com.amap.api.maps.AMap
 import com.amap.api.maps.CameraUpdateFactory
 import com.amap.api.maps.MapsInitializer
-import com.amap.api.maps.model.LatLng
 import com.amap.api.maps.model.PolylineOptions
+import com.google.android.gms.maps.OnMapReadyCallback
 import com.zhangzhao.sportsapp.R
 import com.zhangzhao.sportsapp.databinding.FragmentTrackingBinding
 import com.zhangzhao.sportsapp.model.Constants.ACTION_PAUSE_SERVICE
@@ -24,9 +23,11 @@ import com.zhangzhao.sportsapp.model.Constants.POLYLINE_COLOR
 import com.zhangzhao.sportsapp.model.Constants.POLYLINE_WIDTH
 import com.zhangzhao.sportsapp.services.Polyline
 import com.zhangzhao.sportsapp.services.TrackingService
+import com.zhangzhao.sportsapp.util.TrackingUtility
 import com.zhangzhao.sportsapp.viewmodel.RunViewmodel
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
+
 
 @AndroidEntryPoint
 class TrackingFragment: Fragment(R.layout.fragment_tracking) {
@@ -39,13 +40,15 @@ class TrackingFragment: Fragment(R.layout.fragment_tracking) {
     private lateinit var aMap: AMap
 
     private var isTracking = false
-    private var pathPointsInFrag = mutableListOf<Polyline>()
+    private var pathPoints = mutableListOf<Polyline>()
+    private var curTimeInMillis = 0L
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        Timber.tag("MyTag").d("TrackingFragment创建了")
         _binding = FragmentTrackingBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -64,9 +67,10 @@ class TrackingFragment: Fragment(R.layout.fragment_tracking) {
 
         //初始化地图控制器对象
         aMap = binding.mapView.map
-        addAllPolylines()
-
         subscribeToObservers()
+        addAllPolylines()//应等待地图初始化完毕？？
+
+
 
         binding.btnToggleRun.setOnClickListener {
             toggleRun()
@@ -74,16 +78,27 @@ class TrackingFragment: Fragment(R.layout.fragment_tracking) {
     }
 
     private fun subscribeToObservers() {
+        Timber.tag("MyTag").d("订阅观察者")
         TrackingService.isTracking.observe(viewLifecycleOwner, Observer {
-            Timber.tag("MyTag").d("观测了一下isTracking")
             updateTracking(it)
         })
 
         TrackingService.pathPoints.observe(viewLifecycleOwner, Observer {
-            Timber.tag("MyTag").d("观测了一下pathPoints")
-            pathPointsInFrag = it
+            pathPoints = it
+            if (pathPoints.isEmpty()) {
+                Timber.tag("MyTag").d("发生了一些空值错误")
+            }
+            if (pathPoints.last().size > 0) {
+                Timber.tag("MyTag").d("向pathPointsInFrag中更新值${pathPoints.last().last()}")
+            }
             addLatestPolyline()
             moveCameraToUser()
+        })
+
+        TrackingService.timeRunInMillis.observe(viewLifecycleOwner, Observer {
+            curTimeInMillis = it
+            val formattedTime = TrackingUtility.getFormattedStopWatchTime(it, true)
+            binding.tvTimer.text = formattedTime
         })
     }
 
@@ -107,11 +122,11 @@ class TrackingFragment: Fragment(R.layout.fragment_tracking) {
     }
 
     private fun moveCameraToUser() {
-        if (pathPointsInFrag.isNotEmpty() && pathPointsInFrag.last().isNotEmpty()) {
+        if (pathPoints.isNotEmpty() && pathPoints.last().isNotEmpty()) {
             Timber.tag("MyTag").d("视角移到中央")
             aMap.animateCamera(
                 CameraUpdateFactory.newLatLngZoom(
-                    pathPointsInFrag.last().last(),
+                    pathPoints.last().last(),
                     MAP_ZOOM
                 )
             )
@@ -121,7 +136,11 @@ class TrackingFragment: Fragment(R.layout.fragment_tracking) {
     }
 
     private fun addAllPolylines() {
-        for (polyline in pathPointsInFrag) {
+        if (pathPoints.isEmpty()) {
+            Timber.tag("MyTag").d("pathPoints为空，无法重新绘制所有轨迹")
+        }
+        for (polyline in pathPoints) {
+            Timber.tag("MyTag").d("重新绘制所有轨迹:$polyline")
             val polylineOptions = PolylineOptions()
                 .color(POLYLINE_COLOR)
                 .width(POLYLINE_WIDTH)
@@ -132,10 +151,10 @@ class TrackingFragment: Fragment(R.layout.fragment_tracking) {
 
     // 绘制路线
     private fun addLatestPolyline() {
-        if (pathPointsInFrag.isNotEmpty() && pathPointsInFrag.last().size > 1) {
-            Timber.tag("MyTag").d("有${pathPointsInFrag.last().size}点，绘制了")
-            val preLastLatLng = pathPointsInFrag.last()[pathPointsInFrag.last().size - 2]
-            val lastLatLng = pathPointsInFrag.last().last()
+        if (pathPoints.isNotEmpty() && pathPoints.last().size > 1) {
+            Timber.tag("MyTag").d("有${pathPoints.last().size}点，绘制了")
+            val preLastLatLng = pathPoints.last()[pathPoints.last().size - 2]
+            val lastLatLng = pathPoints.last().last()
             val polylineOptions = PolylineOptions()
                 .color(POLYLINE_COLOR)
                 .width(POLYLINE_WIDTH)

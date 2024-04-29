@@ -50,9 +50,9 @@ class TrackingService: LifecycleService() {
     }
 
     private fun postInitialValues() {
-        timeRunInMillis.postValue(0L)
         isTracking.postValue(false)
         pathPoints.postValue(mutableListOf(mutableListOf()))
+        timeRunInMillis.postValue(0L)
         timeRunInSeconds.postValue(0L)
     }
 
@@ -107,13 +107,13 @@ class TrackingService: LifecycleService() {
         intent?.let {
             when (it.action) {
                 ACTION_START_OR_RESUME_SERVICE -> {
-                    Timber.tag("MyTag").d("Started or resumed service")
                     if(isFirstRun) {
+                        Timber.tag("MyTag").d("Started service")
                         startForegroundService()
                         isFirstRun = false
                     } else {
                         Timber.tag("MyTag").d("Resuming Service")
-                        startForegroundService()
+                        startTimer()
                     }
                 }
                 ACTION_PAUSE_SERVICE -> {
@@ -129,10 +129,10 @@ class TrackingService: LifecycleService() {
     }
 
     private var isTimerEnabled = false
-    private var lapTime = 0L // 启动timer之后的时间
-    private var timeRun = 0L // 运行总时间
+    private var lapTime = 0L // 每次启动timer之后运行的时间
+    private var timeRun = 0L // 多次运行总时间
     private var timeStarted = 0L // 启动timer的时刻
-    private var lastSecondTimestamp = 0L
+    private var lastSecondTimestamp = 0L // 上一秒
 
     private fun startTimer() {
         addEmptyPolyline()
@@ -141,10 +141,10 @@ class TrackingService: LifecycleService() {
         isTimerEnabled = true
         CoroutineScope(Dispatchers.Main).launch {
             while (isTracking.value!!) {
-                // 启动timer和now的时间差
+                // 启动timer时和now的时间差
                 lapTime = System.currentTimeMillis() - timeStarted
                 timeRunInMillis.postValue(timeRun + lapTime)
-                // 过了1s更新timeRunInSeconds
+                // 每过1s更新timeRunInSeconds
                 if (timeRunInMillis.value!! >= lastSecondTimestamp + 1000L) {
                     timeRunInSeconds.postValue(timeRunInSeconds.value!! + 1)
                     lastSecondTimestamp += 1000L
@@ -157,6 +157,7 @@ class TrackingService: LifecycleService() {
 
     private fun pauseService() {
         isTracking.postValue(false)
+        isTimerEnabled = false
     }
 
     private fun updateLocationChecking(isTracking: Boolean) {
@@ -171,9 +172,8 @@ class TrackingService: LifecycleService() {
     private fun addPathPoint(position: LatLng) {
         position.let {
             pathPoints.value?.apply {
-                Timber.tag("MyTag").d("pathPoints更新了$position")
+                Timber.tag("MyTag").d("pathPointsInService更新了$position")
                 last().add(position)
-                Timber.tag("MyTag").d("点add成功")
                 pathPoints.postValue(this)
             }
         }
@@ -188,6 +188,8 @@ class TrackingService: LifecycleService() {
     // 创建通知栏通知
     private fun startForegroundService() {
         Timber.tag("MyTag").d("TrackingService started.")
+
+        startTimer()
 
         val notificationManager =
             getSystemService(Context.NOTIFICATION_SERVICE)
