@@ -3,6 +3,7 @@ package com.zhangzhao.sportsapp.util
 import android.Manifest
 import android.content.Context
 import pub.devrel.easypermissions.EasyPermissions
+import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
 class TrackingUtility {
@@ -36,6 +37,16 @@ class TrackingUtility {
                     "${if (minutes < 10) "0" else ""}$minutes:" +
                     "${if (seconds < 10) "0" else ""}$seconds:" +
                     "${if (milliseconds < 10) "0" else ""}$milliseconds"
+        }
+
+        fun getFormattedPace(pace: Float): String {
+            var paceInMills = pace.toLong()
+            val hours = TimeUnit.MILLISECONDS.toHours(paceInMills)
+            paceInMills -= TimeUnit.HOURS.toMillis(hours)
+            val minutes = TimeUnit.MILLISECONDS.toMinutes(paceInMills)
+            paceInMills -= TimeUnit.MINUTES.toMillis(minutes)
+            val seconds = TimeUnit.MILLISECONDS.toSeconds(paceInMills)
+            return "${if (minutes < 10) " " else ""}$minutes\'" + "${if (seconds < 10) "0" else ""}$seconds\""
         }
 
     }

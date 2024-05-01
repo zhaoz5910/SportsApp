@@ -4,8 +4,8 @@
     <string name="sports">Sports</string>
     <string name="statistics">Statistics</string>
     <string name="setting">Setting</string>
-    <string name="start_text">Start</string>
-    <string name="stop_text">Stop</string>
+    <string name="start_text">开始</string>
+    <string name="stop_text">暂停</string>
     <string-array name="filter_options">
         <item>Date</item>
         <item>Running Time</item>
@@ -15,4 +15,9 @@
     </string-array>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="time_initial_value">00:00:00:00</string>
+    <string name="finish_text">结束</string>
+    <string name="speed_initial_text">00\'00\'</string>
+    <string name="distance_initial_text">0米</string>
+    <string name="calorie_initial_text">0</string>
 </resources>

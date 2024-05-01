@@ -12,28 +12,31 @@ import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.MutableLiveData
 import com.amap.api.maps.model.LatLng
-import com.zhangzhao.sportsapp.R
 import com.zhangzhao.sportsapp.model.Constants.ACTION_PAUSE_SERVICE
-import com.zhangzhao.sportsapp.model.Constants.ACTION_SHOW_TRACKING_FRAGMENT
 import com.zhangzhao.sportsapp.model.Constants.ACTION_START_OR_RESUME_SERVICE
 import com.zhangzhao.sportsapp.model.Constants.ACTION_STOP_SERVICE
 import com.zhangzhao.sportsapp.model.Constants.NOTIFICATION_CHANNEL_ID
 import com.zhangzhao.sportsapp.model.Constants.NOTIFICATION_CHANNEL_NAME
 import com.zhangzhao.sportsapp.model.Constants.NOTIFICATION_ID
-import com.zhangzhao.sportsapp.view.MainActivity
 import timber.log.Timber
 import com.amap.api.location.AMapLocationClient
 import com.amap.api.location.AMapLocationClientOption
 import com.amap.api.location.AMapLocationListener
+import com.amap.api.maps.AMapUtils
+import com.zhangzhao.sportsapp.R
 import com.zhangzhao.sportsapp.model.Constants.TIMER_UPDATE_INTERVAL
+import com.zhangzhao.sportsapp.util.TrackingUtility
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 typealias Polyline = MutableList<LatLng>
 typealias Polylines = MutableList<Polyline>
 
+@AndroidEntryPoint
 class TrackingService: LifecycleService() {
 
     private val timeRunInSeconds = MutableLiveData<Long>()
@@ -43,10 +46,51 @@ class TrackingService: LifecycleService() {
     private lateinit var locationClient: AMapLocationClient
     private lateinit var locationOption: AMapLocationClientOption
 
+    // 包含每个通知将具有的设置的基本通知生成器
+    @Inject
+    lateinit var baseNotificationBuilder: NotificationCompat.Builder
+
+    //当前通知的生成器
+    private lateinit var curNotification: NotificationCompat.Builder
+
+    private var distanceRun = 0F
+    private var pointPre: LatLng? = null
+    private var pace = 0
+
+    // 地图监听器
+    private val locationListener = AMapLocationListener { aMapLocation ->
+        if (aMapLocation != null) {
+            if (aMapLocation.errorCode == 0) {
+                // 定位成功
+                //val address = aMapLocation.address
+                // 处理定位结果
+                val point = LatLng(aMapLocation.latitude, aMapLocation.longitude)
+
+                if (pointPre == null) {
+                    pointPre = point
+                } else {
+                    distanceRun += AMapUtils.calculateLineDistance(
+                        pointPre,point
+                    )
+                    pointPre = point
+                    distanceRunInMeters.postValue(distanceRun)
+                }
+                addPathPoint(
+                    LatLng(aMapLocation.latitude, aMapLocation.longitude)
+                )
+            } else {
+                // 定位失败
+                val errText = "定位失败, ${aMapLocation.errorCode}:${aMapLocation.errorInfo}"
+                println("AmapError: $errText")
+            }
+        }
+    }
+
     companion object {
         val timeRunInMillis = MutableLiveData<Long>()
         val isTracking = MutableLiveData<Boolean>()
         val pathPoints = MutableLiveData<Polylines>()
+        val distanceRunInMeters = MutableLiveData<Float>()
     }
 
     private fun postInitialValues() {
@@ -54,14 +98,17 @@ class TrackingService: LifecycleService() {
         pathPoints.postValue(mutableListOf(mutableListOf()))
         timeRunInMillis.postValue(0L)
         timeRunInSeconds.postValue(0L)
+        distanceRunInMeters.postValue(0F)
     }
 
     override fun onCreate() {
         super.onCreate()
+        curNotification = baseNotificationBuilder
         postInitialValues()
         initLocation()
 
         isTracking.observe(this) {
+            updateNotificationTrackingState(it)
             updateLocationChecking(it)
         }
     }
@@ -74,33 +121,14 @@ class TrackingService: LifecycleService() {
         locationOption.locationMode =
             AMapLocationClientOption.AMapLocationMode.Hight_Accuracy
         // 设置定位间隔，单位毫秒，默认为2000ms
-        locationOption.interval = 2000
+        locationOption.interval = 200
         // 设置是否返回地址信息（默认返回地址信息）
         locationOption.isNeedAddress = true
-        // 设置是否只定位一次,默认为false
-        locationOption.isOnceLocation = false
         // 单位是毫秒，默认30000毫秒，建议超时时间不要低于8000毫秒。
-        locationOption.httpTimeOut = 20000
+        locationOption.httpTimeOut = 10000
 
         locationClient.setLocationOption(locationOption)
         locationClient.setLocationListener(locationListener)
-    }
-
-    private val locationListener = AMapLocationListener { aMapLocation ->
-        if (aMapLocation != null) {
-            if (aMapLocation.errorCode == 0) {
-                // 定位成功
-                val address = aMapLocation.address
-                // 处理定位结果
-                addPathPoint(
-                    LatLng(aMapLocation.latitude, aMapLocation.longitude)
-                )
-            } else {
-                // 定位失败
-                val errText = "定位失败, ${aMapLocation.errorCode}:${aMapLocation.errorInfo}"
-                println("AmapError: $errText")
-            }
-        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -128,7 +156,6 @@ class TrackingService: LifecycleService() {
         return super.onStartCommand(intent, flags, startId)
     }
 
-    private var isTimerEnabled = false
     private var lapTime = 0L // 每次启动timer之后运行的时间
     private var timeRun = 0L // 多次运行总时间
     private var timeStarted = 0L // 启动timer的时刻
@@ -138,7 +165,6 @@ class TrackingService: LifecycleService() {
         addEmptyPolyline()
         isTracking.postValue(true)
         timeStarted = System.currentTimeMillis()
-        isTimerEnabled = true
         CoroutineScope(Dispatchers.Main).launch {
             while (isTracking.value!!) {
                 // 启动timer时和now的时间差
@@ -157,7 +183,6 @@ class TrackingService: LifecycleService() {
 
     private fun pauseService() {
         isTracking.postValue(false)
-        isTimerEnabled = false
     }
 
     private fun updateLocationChecking(isTracking: Boolean) {
@@ -172,7 +197,6 @@ class TrackingService: LifecycleService() {
     private fun addPathPoint(position: LatLng) {
         position.let {
             pathPoints.value?.apply {
-                Timber.tag("MyTag").d("pathPointsInService更新了$position")
                 last().add(position)
                 pathPoints.postValue(this)
             }
@@ -189,37 +213,53 @@ class TrackingService: LifecycleService() {
     private fun startForegroundService() {
         Timber.tag("MyTag").d("TrackingService started.")
 
-        startTimer()
-
         val notificationManager =
             getSystemService(Context.NOTIFICATION_SERVICE)
                     as NotificationManager
 
         createNotificationChannel(notificationManager)
 
-        val notificationBuilder = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
-            .setAutoCancel(false)
-            .setOngoing(true)
-            .setSmallIcon(R.drawable.ic_directions_run_black_24dp)
-            .setContentTitle("i运动：跑步中")
-            .setContentText("00:00:00")
-            .setContentIntent(getMainActivityPendingIntent())
+        startForeground(NOTIFICATION_ID, curNotification.build())
 
-        startForeground(NOTIFICATION_ID, notificationBuilder.build())
-
+        // 开始计时
         startTimer()
-        isTracking.postValue(true)
+
+        // 更新通知的时间
+        timeRunInSeconds.observe(this) {
+            val notification = curNotification
+                .setContentText(TrackingUtility.getFormattedStopWatchTime(it * 1000L))
+            notificationManager.notify(NOTIFICATION_ID, notification.build())
+        }
     }
 
-    // 获取intent
-    private fun getMainActivityPendingIntent() = PendingIntent.getActivity(
-        this,
-        0,
-        Intent(this, MainActivity::class.java).also {
-            it.action = ACTION_SHOW_TRACKING_FRAGMENT
-        },
-        FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
-    )
+    // 更新通知的操作按钮
+    private fun updateNotificationTrackingState(isTracking: Boolean) {
+        val notificationActionText = if (isTracking) "暂停" else "继续"
+        val pendingIntent = if (isTracking) {
+            val pauseIntent = Intent(this, TrackingService::class.java).apply {
+                action = ACTION_PAUSE_SERVICE
+            }
+            PendingIntent.getService(this, 1, pauseIntent,
+                FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE)
+        } else {
+            val resumeIntent = Intent(this, TrackingService::class.java).apply {
+                action = ACTION_START_OR_RESUME_SERVICE
+            }
+            PendingIntent.getService(this, 2, resumeIntent,
+                FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE)
+        }
+        val notificationManager =
+            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        curNotification.javaClass.getDeclaredField("mActions").apply {
+            isAccessible = true
+            set(curNotification, ArrayList<NotificationCompat.Action>())
+        }
+        curNotification = baseNotificationBuilder
+            .addAction(R.drawable.ic_pause_black_24dp, notificationActionText, pendingIntent)
+
+        notificationManager.notify(NOTIFICATION_ID, curNotification.build())
+    }
 
     // 创建通知通道
     private fun createNotificationChannel(notificationManager: NotificationManager) {

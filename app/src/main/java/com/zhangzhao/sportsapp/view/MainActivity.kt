@@ -41,9 +41,6 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        Timber.tag("MyTag").d("onCreate被调用")
-        navigateToTrackingFragmentIfNeeded(intent)
-
         navHost = supportFragmentManager.findFragmentById(R.id.navHostFragment)
                 as NavHostFragment
 
@@ -59,6 +56,7 @@ class MainActivity : AppCompatActivity() {
                     else -> binding.bottomNavigationView.visibility = View.VISIBLE
                 }
             }
+        navigateToTrackingFragmentIfNeeded(intent)
     }
 
     override fun onNewIntent(intent: Intent?) {
