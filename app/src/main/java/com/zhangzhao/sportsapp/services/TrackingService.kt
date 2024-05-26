@@ -42,6 +42,7 @@ class TrackingService: LifecycleService() {
     private val timeRunInSeconds = MutableLiveData<Long>()
 
     private var isFirstRun = true
+    private var serviceKilled = false
 
     private lateinit var locationClient: AMapLocationClient
     private lateinit var locationOption: AMapLocationClientOption
@@ -55,7 +56,6 @@ class TrackingService: LifecycleService() {
 
     private var distanceRun = 0F
     private var pointPre: LatLng? = null
-    private var pace = 0
 
     // 地图监听器
     private val locationListener = AMapLocationListener { aMapLocation ->
@@ -150,10 +150,21 @@ class TrackingService: LifecycleService() {
                 }
                 ACTION_STOP_SERVICE -> {
                     Timber.tag("MyTag").d("Stopped service")
+                    killService()
                 }
             }
         }
         return super.onStartCommand(intent, flags, startId)
+    }
+
+    private fun killService() {
+        Timber.tag("MyTag").d("Killed service")
+        serviceKilled = true
+        isFirstRun = true
+        pauseService()
+        postInitialValues()
+        stopForeground(STOP_FOREGROUND_REMOVE)
+        stopSelf()
     }
 
     private var lapTime = 0L // 每次启动timer之后运行的时间
@@ -226,9 +237,11 @@ class TrackingService: LifecycleService() {
 
         // 更新通知的时间
         timeRunInSeconds.observe(this) {
-            val notification = curNotification
-                .setContentText(TrackingUtility.getFormattedStopWatchTime(it * 1000L))
-            notificationManager.notify(NOTIFICATION_ID, notification.build())
+            if (!serviceKilled) {
+                val notification = curNotification
+                    .setContentText(TrackingUtility.getFormattedStopWatchTime(it * 1000L))
+                notificationManager.notify(NOTIFICATION_ID, notification.build())
+            }
         }
     }
 
@@ -239,14 +252,18 @@ class TrackingService: LifecycleService() {
             val pauseIntent = Intent(this, TrackingService::class.java).apply {
                 action = ACTION_PAUSE_SERVICE
             }
-            PendingIntent.getService(this, 1, pauseIntent,
-                FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE)
+            PendingIntent.getService(
+                this, 1, pauseIntent,
+                FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
+            )
         } else {
             val resumeIntent = Intent(this, TrackingService::class.java).apply {
                 action = ACTION_START_OR_RESUME_SERVICE
             }
-            PendingIntent.getService(this, 2, resumeIntent,
-                FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE)
+            PendingIntent.getService(
+                this, 2, resumeIntent,
+                FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
+            )
         }
         val notificationManager =
             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -255,10 +272,12 @@ class TrackingService: LifecycleService() {
             isAccessible = true
             set(curNotification, ArrayList<NotificationCompat.Action>())
         }
-        curNotification = baseNotificationBuilder
-            .addAction(R.drawable.ic_pause_black_24dp, notificationActionText, pendingIntent)
+        if (!serviceKilled) {
+            curNotification = baseNotificationBuilder
+                .addAction(R.drawable.ic_pause_black_24dp, notificationActionText, pendingIntent)
 
-        notificationManager.notify(NOTIFICATION_ID, curNotification.build())
+            notificationManager.notify(NOTIFICATION_ID, curNotification.build())
+        }
     }
 
     // 创建通知通道
@@ -266,7 +285,8 @@ class TrackingService: LifecycleService() {
         val channel = NotificationChannel(
             NOTIFICATION_CHANNEL_ID,
             NOTIFICATION_CHANNEL_NAME,
-            IMPORTANCE_LOW)
+            IMPORTANCE_LOW
+        )
         notificationManager.createNotificationChannel(channel)
     }
 

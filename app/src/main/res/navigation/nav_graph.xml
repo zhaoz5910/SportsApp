@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
     app:startDestination="@id/setupFragment">
 
@@ -9,42 +10,56 @@
         app:launchSingleTop="true" />
 
     <fragment
-        android:id="@+id/runFragment"
-        android:name="com.zhangzhao.sportsapp.view.fragment.RunFragment"
-        android:label="RunFragment" >
+        android:id="@+id/sportFragment"
+        android:name="com.zhangzhao.sportsapp.view.fragment.SportFragment"
+        android:label="sportFragment"
+        app:launchSingleTop="true">
         <action
-            android:id="@+id/action_runFragment_to_trackingFragment"
+            android:id="@+id/action_sportFragment_to_trackingFragment"
             app:destination="@id/trackingFragment" />
         <action
-            android:id="@+id/action_runFragment_to_statisticsFragment"
-            app:destination="@id/statisticsFragment" />
+            android:id="@+id/action_sportFragment_to_ropeSkippingFragment"
+            app:destination="@id/ropeSkippingFragment" />
     </fragment>
     <fragment
         android:id="@+id/settingFragment"
         android:name="com.zhangzhao.sportsapp.view.fragment.SettingFragment"
-        android:label="SettingFragment" />
+        android:label="SettingFragment"
+        app:launchSingleTop="true">
+    </fragment>
     <fragment
         android:id="@+id/setupFragment"
         android:name="com.zhangzhao.sportsapp.view.fragment.SetupFragment"
         android:label="SetupFragment" >
         <action
-            android:id="@+id/action_setupFragment_to_runFragment"
-            app:destination="@id/runFragment" />
+            android:id="@+id/action_setupFragment_to_sportFragment"
+            app:destination="@id/sportFragment" />
     </fragment>
     <fragment
         android:id="@+id/statisticsFragment"
         android:name="com.zhangzhao.sportsapp.view.fragment.StatisticsFragment"
-        android:label="StatisticsFragment" >
+        android:label="StatisticsFragment"
+        app:launchSingleTop="true">
         <action
-            android:id="@+id/action_statisticsFragment_to_settingFragment"
-            app:destination="@id/settingFragment" />
+            android:id="@+id/action_statisticsFragment_to_runFragment"
+            app:destination="@id/runFragment" />
     </fragment>
     <fragment
         android:id="@+id/trackingFragment"
         android:name="com.zhangzhao.sportsapp.view.fragment.TrackingFragment"
-        android:label="TrackingFragment" >
+        android:label="TrackingFragment">
         <action
-            android:id="@+id/action_trackingFragment_to_runFragment"
-            app:destination="@id/runFragment" />
+            android:id="@+id/action_trackingFragment_to_sportFragment"
+            app:destination="@id/sportFragment"
+            app:popUpTo="@id/sportFragment"
+            app:popUpToInclusive="true"/>
     </fragment>
+    <fragment
+        android:id="@+id/runFragment"
+        android:name="com.zhangzhao.sportsapp.view.fragment.RunFragment"
+        android:label="fragment_run"/>
+    <fragment
+        android:id="@+id/ropeSkippingFragment"
+        android:name="com.zhangzhao.sportsapp.view.fragment.RunFragment"
+        android:label="fragment_ropeSkipping" />
 </navigation>

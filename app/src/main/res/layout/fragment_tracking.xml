@@ -9,7 +9,8 @@
         android:id="@+id/infoLayout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:background="@color/md_blue_800"
+        app:layout_constraintVertical_weight="2"
+        android:background="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
@@ -29,7 +30,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvDistance" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tvSpeed"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -42,7 +43,7 @@
             app:layout_constraintStart_toEndOf="@+id/tvTimer"
             app:layout_constraintTop_toBottomOf="@id/tvDistance"/>
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tvDistance"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -51,7 +52,7 @@
             android:textSize="40sp"
             app:layout_constraintBottom_toTopOf="@+id/tvTimer"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.121"
+            app:layout_constraintHorizontal_bias="0.103"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -59,7 +60,7 @@
             android:id="@+id/btnToggleRun"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/md_blue_500"
+            android:backgroundTint="@color/orange"
             android:text="@string/start_text"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/btnFinishRun"
@@ -70,7 +71,7 @@
             android:id="@+id/btnFinishRun"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/md_blue_500"
+            android:backgroundTint="@color/orange"
             android:text="@string/finish_text"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -83,8 +84,9 @@
 
     <com.amap.api.maps.MapView
         android:id="@+id/mapView"
-        android:layout_width="408dp"
-        android:layout_height="476dp"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintVertical_weight="3"
         app:layout_constraintBottom_toTopOf="@+id/infoLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"

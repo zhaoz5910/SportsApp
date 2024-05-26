@@ -5,14 +5,15 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "run_table")
-class Run (
+data class Run (
     var img: Bitmap? = null,
     var timestamp: Long = 0L,
+    var pace: String = "00\'00\"",
     var avgSpeedInKMH: Float = 0f,
-    var distanceInMeters: Int = 0,
+    var distanceInMeters: Long = 0,
     var timeInMillis: Long = 0,
-    var caloriesBurned: Int = 0
+    var caloriesBurned: Long = 0
 ){
     @PrimaryKey(autoGenerate = true)
-    var id = 0
+    var id = 0L
 }

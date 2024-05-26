@@ -5,19 +5,42 @@
     <string name="statistics">Statistics</string>
     <string name="setting">Setting</string>
     <string name="start_text">开始</string>
+    <string name="continue_text">继续</string>
     <string name="stop_text">暂停</string>
     <string-array name="filter_options">
-        <item>Date</item>
-        <item>Running Time</item>
-        <item>Distance</item>
-        <item>Average Speed</item>
-        <item>Calories Burned</item>
+        <item>日期</item>
+        <item>用时</item>
+        <item>距离</item>
+        <item>平均速度</item>
+        <item>卡路里</item>
+    </string-array>
+    <string-array name="rope_options">
+        <item>日期</item>
+        <item>用时</item>
+        <item>个数</item>
+        <item>卡路里</item>
+    </string-array>
+    <string-array name="all_options">
+        <item>日期</item>
+    </string-array>
+    <string-array name="sport_options">
+        <item>所有</item>
+        <item>户外跑步</item>
+        <item>跳绳</item>
     </string-array>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="time_initial_value">00:00:00:00</string>
+    <string name="time_initial_record_value">00:00:00</string>
     <string name="finish_text">结束</string>
-    <string name="speed_initial_text">00\'00\'</string>
+    <string name="speed_initial_text">00\'00\"</string>
     <string name="distance_initial_text">0米</string>
-    <string name="calorie_initial_text">0</string>
+    <string name="calorie_initial_text">0cal</string>
+    <string name="date_initial_text">2024.05.01</string>
+    <string name="run_sort_text">顺序：</string>
+    <string name="runName">户外跑步</string>
+    <string name="ropeName">跳绳</string>
+    <string name="sport_run_initial_text">累计已跑0公里</string>
+    <string name="sport_rope_initial_text">累计已跳0个</string>
+    <string name="sport_type">运动类型：</string>
 </resources>

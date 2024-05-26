@@ -3,6 +3,7 @@ package com.zhangzhao.sportsapp.util
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.room.TypeConverter
+import timber.log.Timber
 import java.io.ByteArrayOutputStream
 
 class Converters {

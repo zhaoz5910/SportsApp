@@ -1,21 +1,14 @@
 package com.zhangzhao.sportsapp.model
 
 import android.graphics.Color
+import androidx.lifecycle.MutableLiveData
 import com.amap.api.maps.model.LatLng
 import com.github.mikephil.charting.data.LineDataSet
 
 object Constants {
 
     // Database
-    const val RUN_DATABASE_NAME = "run_db"
-
-    const val REQUEST_CODE_LOCATION_PERMISSION = 1
-
-    const val MAP_VIEW_BUNDLE_KEY = "MapViewBundleKey"
-
-    // Tracking Options
-    const val LOCATION_UPDATE_INTERVAL = 5000L
-    const val FASTEST_LOCATION_UPDATE_INTERVAL = 2000L
+    const val SPORT_DATABASE_NAME = "sport_db"
 
     // Map Options
     const val POLYLINE_COLOR = Color.RED
@@ -25,13 +18,7 @@ object Constants {
     // Timer
     const val TIMER_UPDATE_INTERVAL = 50L
 
-    // LineChart
-    val LINE_DATA_MODE = LineDataSet.Mode.CUBIC_BEZIER
-
-    // MapView
-    const val MAP_VIEW_HEIGHT_IN_DP = 200f
-
-    // Notifications
+    // Notifications 构建
     const val NOTIFICATION_CHANNEL_ID = "tracking_channel"
     const val NOTIFICATION_CHANNEL_NAME = "Tracking"
     const val NOTIFICATION_ID = 1
@@ -44,9 +31,20 @@ object Constants {
 
     // Service Intent Actions
     const val ACTION_SHOW_TRACKING_FRAGMENT = "com.zhangzhao.sportsapp.action.SHOW_TRACKING_FRAGMENT"
+    const val ACTION_SHOW_RUN_FRAGMENT = "com.zhangzhao.sportsapp.action.SHOW_RUN_FRAGMENT"
     const val ACTION_START_OR_RESUME_SERVICE = "com.zhangzhao.sportsapp.action.START_SERVICE"
     const val ACTION_PAUSE_SERVICE = "com.zhangzhao.sportsapp.action.PAUSE_SERVICE"
     const val ACTION_STOP_SERVICE = "com.zhangzhao.sportsapp.action.STOP_SERVICE"
+
+    // 运动类型
+    const val SPORT_TYPE_RUN = 1
+    const val SPORT_TYPE_ROPESKIPPING = 2
+
+    //运动类型
+    const val SPORT_NAME_RUN = "户外跑步"
+    const val SPORT_NAME_ROPESKIPPING = "跳绳"
+
+    val runInRunFragment = MutableLiveData<Run>()
 
     // Permissions
     val permissionsLocation = arrayOf(
@@ -62,6 +60,7 @@ object Constants {
         android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
     )
 
+    //测试用位置数据集
     val polyline1 = listOf<LatLng>(
         LatLng(39.7332116085915,116.16750199787893),
         LatLng(39.733211362098814,116.16750297923234),

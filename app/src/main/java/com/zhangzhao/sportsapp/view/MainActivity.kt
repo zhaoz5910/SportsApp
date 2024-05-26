@@ -44,18 +44,39 @@ class MainActivity : AppCompatActivity() {
         navHost = supportFragmentManager.findFragmentById(R.id.navHostFragment)
                 as NavHostFragment
 
-        setSupportActionBar(binding.toolbar)
-
         // 绑定底部导航栏
         binding.bottomNavigationView.setupWithNavController(navHost.navController)
         navHost.navController
             .addOnDestinationChangedListener { _, destination, _ ->
                 when (destination.id) {
-                    R.id.setupFragment, R.id.trackingFragment -> binding.bottomNavigationView.visibility =
+                    R.id.setupFragment, R.id.trackingFragment, R.id.runFragment -> binding.bottomNavigationView.visibility =
                         View.GONE
                     else -> binding.bottomNavigationView.visibility = View.VISIBLE
                 }
             }
+        binding.bottomNavigationView.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.sportFragment -> {
+                    navHost.navController.popBackStack(R.id.sportFragment, true)
+                    navHost.navController.popBackStack(R.id.statisticsFragment, true)
+                    navHost.navController.popBackStack(R.id.settingFragment, true)// 清除返回堆栈
+                    navHost.navController.navigate(R.id.sportFragment)
+                }
+                R.id.settingFragment -> {
+                    navHost.navController.popBackStack(R.id.settingFragment, true)
+                    navHost.navController.popBackStack(R.id.statisticsFragment, true)
+                    navHost.navController.popBackStack(R.id.sportFragment, true)
+                    navHost.navController.navigate(R.id.settingFragment)
+                }
+                R.id.statisticsFragment -> {
+                    navHost.navController.popBackStack(R.id.statisticsFragment, true)
+                    navHost.navController.popBackStack(R.id.sportFragment, true)
+                    navHost.navController.popBackStack(R.id.settingFragment, true)
+                    navHost.navController.navigate(R.id.statisticsFragment)
+                }
+            }
+            true
+        }
         navigateToTrackingFragmentIfNeeded(intent)
     }
 
